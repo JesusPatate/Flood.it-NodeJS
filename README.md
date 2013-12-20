@@ -4,7 +4,7 @@ Flood.it is a new lightweight collaborative text editor that uses Node.js and We
 
 ![Screenshot](img/screenshot.png)
 
-## Try.it
+## Try.it (with firefox, chrome not working...)
 
 http://flood-it.herokuapp.com/
 
