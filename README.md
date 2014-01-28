@@ -1,11 +1,12 @@
 # Flood.it
 
 Flood.it is a new lightweight collaborative text editor that uses Node.js and WebSockets.   
-This repository is for the NodeJS version. For more fun, a P2P version is available [here](https://github.com/jesuspatate/Flood.it).
+
+![Screenshot](img/screenshot.png)
 
 ## Try.it
 
-A demonstration will be deployed soon.
+http://flood-it.herokuapp.com/
 
 ## Install.it
 
