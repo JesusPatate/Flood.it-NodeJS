@@ -1,20 +1,18 @@
 {
   "name": "Flood.it",
   "version": "0.0.0",
-  "description": "Online collaborative text editor",
-  "main": "server.js",
-  "dependencies": {
-    "websocket": "~1.0.8"
-  },
+  "description": "Fully decentralized collaborative text editor",
+  "main": "lib/server.js",
+  "dependencies": {},
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "test": "echo \"Coming soon\" && exit 1",
+    "start": "node lib/server.js"
   },
   "keywords": [
-    "editor",
-    "collaborative"
+    "text editor",
+    "p2p"
   ],
-  "author": "",
-  "license": "GPL"
+  "author": "JesusPatate <gg.jesuspatate@orange.fr>",
+  "license": "GPLv3"
 }
