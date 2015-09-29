@@ -7,7 +7,7 @@ Work just started. Details are coming soon.
 ## Install.it (development)
 
 1. Install Node.js: [download page](https://nodejs.org/en/download/)
-2. Install Flood.it dependencies: `npm install`
+2. Install Flood.it dependencies: type `npm install`
 
 ## Start.it
 

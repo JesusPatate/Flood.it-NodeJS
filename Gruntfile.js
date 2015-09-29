@@ -2,7 +2,6 @@
 
 module.exports = function(grunt) {
 
-  // Project configuration.
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     jshint: {
@@ -26,11 +25,6 @@ module.exports = function(grunt) {
     },
     mochaTest: {
       test: {
-        options: {
-          reporter: 'spec',
-          quiet: false, // Optionally suppress output to standard out (defaults to false) 
-          clearRequireCache: false // Optionally clear the require cache before running tests (defaults to false) 
-        },
         src: ['test/**/*.js']
       }
     },
@@ -46,7 +40,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-mocha-test');
   grunt.loadNpmTasks('grunt-docco');
 
-  // Default task(s).
   grunt.registerTask('default', ['test']);
   grunt.registerTask('test', ['jshint', 'mochaTest']);
   grunt.registerTask('doc', 'Generates code documentation', ['docco']);
