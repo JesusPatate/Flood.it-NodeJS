@@ -26,6 +26,13 @@ module.exports = function(grunt) {
     mochaTest: {
       test: {
         src: ['test/**/*.js']
+      },
+      jenkins: {
+        options: {
+          reporter: 'xunit',
+          captureFile: 'test-reports.xml'
+        },
+        src: ['test/**/*.js']
       }
     },
     docco: {
@@ -67,7 +74,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-sonar-runner');
 
   grunt.registerTask('default', ['test']);
-  grunt.registerTask('test', ['jshint', 'mochaTest']);
+  grunt.registerTask('test', ['jshint', 'mochaTest:test']);
+  grunt.registerTask('test-jenkins', ['jshint', 'mochaTest:jenkins']);
   grunt.registerTask('doc', 'Generates code documentation', ['docco']);
   grunt.registerTask('sonar', 'Launches SonarQube analysis', ['sonarRunner:analysis']);
 };
