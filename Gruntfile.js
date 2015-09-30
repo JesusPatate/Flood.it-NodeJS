@@ -33,14 +33,41 @@ module.exports = function(grunt) {
         src: ['lib/**/*.js'],
         dest: 'docs/'
       }
+    },
+    sonarRunner: {
+      analysis: {
+        options: {
+          debug: true,
+          separator: '\n',
+          sonar: {
+            host: {
+              url: 'http://localhost:9000'
+            },
+            jdbc: {
+              url: 'jdbc:postgresql://localhost/sonar',
+              username: 'sonar',
+              password: 'sonar'
+            },
+
+            projectKey: 'fr.jesuspatate:floodit:0.0.1',
+            projectName: 'Flood.it',
+            projectVersion: '0.0.1',
+            sources: ['lib'].join(','),
+            language: 'js',
+            sourceEncoding: 'UTF-8'
+          }
+        }
+      }
     }
   });
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-mocha-test');
   grunt.loadNpmTasks('grunt-docco');
+  grunt.loadNpmTasks('grunt-sonar-runner');
 
   grunt.registerTask('default', ['test']);
   grunt.registerTask('test', ['jshint', 'mochaTest']);
   grunt.registerTask('doc', 'Generates code documentation', ['docco']);
+  grunt.registerTask('sonar', 'Launches SonarQube analysis', ['sonarRunner:analysis']);
 };
