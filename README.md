@@ -21,7 +21,7 @@ Type `npm test`
 
 1. Install istanbul module globally : `npm install -g istanbul`
 2. Launch tests : `istanbul cover _mocha`
-3. Results are written out in the folder 'coverage'
+3. Results are written out in the folder 'reports/coverage'
 
 ## Generate code documentation
 

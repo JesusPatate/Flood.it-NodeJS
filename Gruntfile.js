@@ -27,13 +27,22 @@ module.exports = function(grunt) {
       test: {
         src: ['test/**/*.js']
       },
-      jenkins: {
+      report: {
         options: {
           reporter: 'xunit',
-          captureFile: 'test-reports.xml'
+          captureFile: 'reports/test/test-reports.xml',
+          quiet: true
         },
         src: ['test/**/*.js']
       }
+    },
+    mocha_istanbul: {
+      coverage: {
+        src: 'test',
+        options: {
+          coverageFolder: 'reports/coverage'
+        }
+      },
     },
     docco: {
       all: {
@@ -59,9 +68,15 @@ module.exports = function(grunt) {
             projectKey: 'fr.jesuspatate:floodit:0.0.1',
             projectName: 'Flood.it',
             projectVersion: '0.0.1',
-            sources: ['lib'].join(','),
+            sources: 'lib',
+            tests: 'test',
             language: 'js',
-            sourceEncoding: 'UTF-8'
+            sourceEncoding: 'UTF-8',
+            javascript: {
+              lcov: {
+                reportPath: 'reports/coverage/lcov.info'
+              }
+            }
           }
         }
       }
@@ -72,10 +87,11 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-mocha-test');
   grunt.loadNpmTasks('grunt-docco');
   grunt.loadNpmTasks('grunt-sonar-runner');
+  grunt.loadNpmTasks('grunt-mocha-istanbul');
 
   grunt.registerTask('default', ['test']);
   grunt.registerTask('test', ['jshint', 'mochaTest:test']);
-  grunt.registerTask('test-jenkins', ['jshint', 'mochaTest:jenkins']);
+  grunt.registerTask('test-report', ['jshint', 'mochaTest:report']);
   grunt.registerTask('doc', 'Generates code documentation', ['docco']);
-  grunt.registerTask('sonar', 'Launches SonarQube analysis', ['sonarRunner:analysis']);
+  grunt.registerTask('sonar', 'Launches SonarQube analysis', ['mocha_istanbul:coverage', 'sonarRunner:analysis']);
 };
