@@ -36,7 +36,6 @@ describe('connectionManager', function() {
 			});
 		});
 
-		// TODO It should trigger proper listeners when receiving data
 		it('should trigger proper listeners when receiving messages from' +
 			' remote peers', function(done) {
 
@@ -55,7 +54,7 @@ describe('connectionManager', function() {
 				connection.write(JSON.stringify({
 					header: header1,
 					data: 'data'
-				}));
+				}) + ConnectionManager.MSG_DELIMITER);
 			});
 		});
 	});

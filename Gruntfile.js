@@ -18,15 +18,13 @@ module.exports = function(grunt) {
           module: false,
           describe: false,
           it: false,
-          afterEach: false
+          afterEach: false,
+          Buffer: false
         },
       },
       all: ['Gruntfile.js', 'lib/**/*.js', 'test/**/*.js']
     },
     mochaTest: {
-      test: {
-        src: ['test/**/*.js']
-      },
       report: {
         options: {
           reporter: 'xunit',
@@ -40,9 +38,17 @@ module.exports = function(grunt) {
       coverage: {
         src: 'test',
         options: {
+          reporter: 'landing',
           coverageFolder: 'reports/coverage'
         }
       },
+      sonar: {
+        src: 'test',
+        options: {
+          quiet: true,
+          coverageFolder: 'reports/coverage'
+        }
+      }
     },
     docco: {
       all: {
@@ -90,8 +96,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-mocha-istanbul');
 
   grunt.registerTask('default', ['test']);
-  grunt.registerTask('test', ['jshint', 'mochaTest:test']);
-  grunt.registerTask('test-report', ['jshint', 'mochaTest:report']);
+  grunt.registerTask('test', 'Launches JSHint, unit tests and code coverage', ['jshint', 'coverage']);
+  grunt.registerTask('test-report', 'Generates unit tests report', ['mochaTest:report']);
+  grunt.registerTask('coverage', 'Launches code coverage measurement', ['mocha_istanbul:coverage']);
+  grunt.registerTask('sonar', 'Launches SonarQube analysis', ['mocha_istanbul:sonar', 'sonarRunner:analysis']);
   grunt.registerTask('doc', 'Generates code documentation', ['docco']);
-  grunt.registerTask('sonar', 'Launches SonarQube analysis', ['mocha_istanbul:coverage', 'sonarRunner:analysis']);
 };
