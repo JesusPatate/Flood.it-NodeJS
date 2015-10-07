@@ -42,7 +42,7 @@ describe('connectionManager', function() {
             manager = new ConnectionManager(host, port);
             manager.start();
 
-            manager.addListener(header1, function(host, port, data) {
+            manager.addListener(header1, function(data) {
                 expect(data).to.equal('data');
                 connection.end();
                 done();
