@@ -4,9 +4,10 @@ var expect = require('chai').expect;
 var net = require('net');
 var winston = require('winston');
 
-var ConnectionManager = require('../lib/connectionManager');
-
 winston.level = 'warn';
+
+var ConnectionManager = require('../lib/connectionManager');
+var utils = require('../lib/utils');
 
 describe('connectionManager', function() {
     var cb = function() {};
@@ -232,6 +233,53 @@ describe('connectionManager', function() {
             manager.removeListener(header2, cb, host, port);
             expect(manager._listeners).to.have.ownProperty(header1 + host + port);
             expect(manager._listeners[header1 + host + port]).to.have.length(1);
+        });
+    });
+
+    describe('#send', function() {
+        it('should send the message through the connection specified by' +
+            ' the host and port', function(done) {
+
+                var manager = new ConnectionManager();
+                var n = 0;
+
+                var server = net.createServer(function(socket) {
+                    var buffer = null;
+
+                    socket.on('data', function(chunk) {
+                        buffer = utils.consumeStream(chunk, buffer,
+                            ConnectionManager.MSG_DELIMITER,
+                            function(msg) {
+                                var json = JSON.parse(msg);
+                                expect(json.data).to.equal('test' + (++n));
+
+                                if (n === 2) {
+                                    socket.end();
+                                    server.close();
+                                    done();
+                                }
+                            }
+                        );
+                    });
+                });
+
+                server.on('listening', function() {
+                    manager.send(host, port, header1, 'test1', function() {
+                        manager.send(host, port, header1, 'test2');
+                    });
+                });
+
+                server.listen(port, host);
+        });
+    });
+
+    describe('#getLocalInfo', function() {
+        it('should return IP adress and port on which the server is listening', function() {
+            var manager = new ConnectionManager(host, port);
+            var info = manager.getLocalInfo();
+
+            expect(info.host).to.equal(host);
+            expect(info.port).to.equal(port);
         });
     });
 });
