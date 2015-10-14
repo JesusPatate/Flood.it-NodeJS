@@ -25,6 +25,11 @@
                 </a>
               
                 
+                <a class="source" href="peerSamplingService.html">
+                  peerSamplingService.js
+                </a>
+              
+                
                 <a class="source" href="server.html">
                   server.js
                 </a>
@@ -32,6 +37,11 @@
                 
                 <a class="source" href="utils.html">
                   utils.js
+                </a>
+              
+                
+                <a class="source" href="view.html">
+                  view.js
                 </a>
               
             </div>
@@ -62,10 +72,12 @@
 
 <span class="hljs-keyword">var</span> winston = <span class="hljs-built_in">require</span>(<span class="hljs-string">'winston'</span>);
 <span class="hljs-keyword">var</span> commandLine = <span class="hljs-built_in">require</span>(<span class="hljs-string">'commander'</span>);
-<span class="hljs-keyword">var</span> connectionManager = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./connectionManager'</span>);
+
+<span class="hljs-keyword">var</span> ConnectionManager = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./connectionManager'</span>);
+<span class="hljs-keyword">var</span> PeerSamplingService = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./peerSamplingService'</span>);
 <span class="hljs-keyword">var</span> utils = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./utils'</span>);
 
-winston.level = <span class="hljs-string">'debug'</span>;
+winston.level = <span class="hljs-string">'info'</span>;
 
 <span class="hljs-keyword">var</span> localAddress = <span class="hljs-literal">null</span>;
 <span class="hljs-keyword">var</span> localPort = <span class="hljs-literal">null</span>;
@@ -91,11 +103,11 @@ commandLine.arguments(<span class="hljs-string">'&lt;local_address&gt; &lt;local
         localPort = local_port;
     });
 
-commandLine.option(<span class="hljs-string">'--address &lt;remote_address&gt;'</span>,
+commandLine.option(<span class="hljs-string">'-a, --remoteAddress &lt;address&gt;'</span>,
         <span class="hljs-string">'IP address at which a remote peer must be joined'</span>)
-    .option(<span class="hljs-string">'--port &lt;remote_port&gt; '</span>,
+    .option(<span class="hljs-string">'-p, --remotePort &lt;port&gt; '</span>,
         <span class="hljs-string">'port at which a remote peer must be joined'</span> +
-        <span class="hljs-string">' - must be an integer'</span>, <span class="hljs-built_in">parseInt</span>);
+        <span class="hljs-string">' - must be an integer'</span>);
 
 commandLine.parse(process.argv);
 
@@ -105,7 +117,28 @@ commandLine.parse(process.argv);
     process.exit(<span class="hljs-number">1</span>);
 }
 
-connectionManager.start(localAddress, localPort);</pre></div></div>
+<span class="hljs-keyword">if</span> (commandLine.remoteAddress) {
+    <span class="hljs-keyword">if</span> (commandLine.remotePort) {
+        <span class="hljs-keyword">if</span> (!utils.checkAddress(commandLine.remoteAddress)) {
+            winston.log(<span class="hljs-string">'error'</span>, <span class="hljs-string">'Wrong remote IP address.'</span>);
+            process.exit(<span class="hljs-number">1</span>);
+        }
+        <span class="hljs-keyword">if</span> (!utils.checkPort(commandLine.remotePort)) {
+            winston.log(<span class="hljs-string">'error'</span>, <span class="hljs-string">'Wrong remote port number.'</span>);
+            process.exit(<span class="hljs-number">1</span>);
+        }
+    } <span class="hljs-keyword">else</span> {
+        winston.log(<span class="hljs-string">'error'</span>, <span class="hljs-string">'Remote address and port number must be specified'</span>,
+            <span class="hljs-string">' both.'</span>);
+        process.exit(<span class="hljs-number">1</span>);
+    }
+}
+
+<span class="hljs-keyword">var</span> connectionManager = <span class="hljs-keyword">new</span> ConnectionManager(localAddress, localPort);
+connectionManager.start();
+
+<span class="hljs-keyword">var</span> peerSamplingService = <span class="hljs-keyword">new</span> PeerSamplingService(connectionManager);
+peerSamplingService.init(commandLine.remoteAddress, commandLine.remotePort);</pre></div></div>
             
         </li>
         
