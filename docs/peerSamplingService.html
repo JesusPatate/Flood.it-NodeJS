@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>peerSamplingService.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page_wrapper">
+            <div id="jump_page">
+              
+                
+                <a class="source" href="connectionManager.html">
+                  connectionManager.js
+                </a>
+              
+                
+                <a class="source" href="peerSamplingService.html">
+                  peerSamplingService.js
+                </a>
+              
+                
+                <a class="source" href="server.html">
+                  server.js
+                </a>
+              
+                
+                <a class="source" href="utils.html">
+                  utils.js
+                </a>
+              
+                
+                <a class="source" href="view.html">
+                  view.js
+                </a>
+              
+            </div>
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>peerSamplingService.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-pi">'use strict'</span>;
+
+<span class="hljs-keyword">var</span> winston = <span class="hljs-built_in">require</span>(<span class="hljs-string">'winston'</span>);
+<span class="hljs-keyword">var</span> View = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./view'</span>);
+
+<span class="hljs-keyword">var</span> P_SELECT_OLDEST = <span class="hljs-number">0.75</span>;
+<span class="hljs-keyword">var</span> MAX_VIEW_SIZE = <span class="hljs-number">10</span>;
+<span class="hljs-keyword">var</span> HEAL_FACTOR = <span class="hljs-number">2</span>;
+<span class="hljs-keyword">var</span> SWAP_FACTOR = <span class="hljs-number">2</span>;
+<span class="hljs-keyword">var</span> TICK = <span class="hljs-number">2000</span>;
+
+<span class="hljs-keyword">var</span> REQUEST_HEADER = <span class="hljs-string">'PSS_REQ'</span>;
+<span class="hljs-keyword">var</span> RESPONSE_HEADER = <span class="hljs-string">'PSS_RES'</span>;
+
+<span class="hljs-keyword">var</span> PeerSamplingService = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">connectionManager</span>) </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Service that gives access to the network</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>._connectionManager = connectionManager;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Each peer maintains a membership table representing
+its partial knowledge of the network.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>._view = <span class="hljs-keyword">new</span> View();
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Initializes the service : starts active and passive threads
+and optionnally joins a remote peer</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>PeerSamplingService.prototype.init = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">host, port</span>) </span>{
+    <span class="hljs-keyword">this</span>._startPassiveThread();
+    <span class="hljs-keyword">this</span>._startActiveThread();
+
+    <span class="hljs-keyword">if</span> (host &amp;&amp; port) {
+        <span class="hljs-keyword">this</span>._join(host, port);
+    }
+};
+
+PeerSamplingService.prototype._startPassiveThread = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>;
+
+    <span class="hljs-keyword">this</span>._connectionManager.addListener(REQUEST_HEADER, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">data, host, port</span>) </span>{
+        <span class="hljs-keyword">var</span> localInfo = self._connectionManager.getLocalInfo();
+        <span class="hljs-keyword">var</span> buffer = constructBuffer(self._view, localInfo.host,
+            localInfo.port, host, port);
+
+        self._connectionManager.send(host, port, RESPONSE_HEADER, {view: buffer});
+
+        <span class="hljs-keyword">var</span> remoteView = data.view;
+        <span class="hljs-keyword">var</span> newView = mergeViews(self._view, remoteView);
+        self._view = newView.increaseAge();
+    });
+};
+
+PeerSamplingService.prototype._startActiveThread = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>;
+
+    setInterval(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">if</span> (self._view.length() &gt; <span class="hljs-number">0</span>) {
+            <span class="hljs-keyword">var</span> desc = selectPeer(self._view);
+            <span class="hljs-keyword">var</span> localInfo = self._connectionManager.getLocalInfo();
+            <span class="hljs-keyword">var</span> buffer = constructBuffer(self._view, localInfo.host,
+                localInfo.port, desc.host, desc.port);
+
+            self._connectionManager.send(desc.host, desc.port, REQUEST_HEADER,
+                {view: buffer}, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+
+                pullView(self._view, desc.host, desc.port, self._connectionManager);
+            });
+        }
+    }, TICK);
+};
+
+PeerSamplingService.prototype._join = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">host, port</span>) </span>{
+    <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>;
+
+    <span class="hljs-keyword">var</span> localInfo = <span class="hljs-keyword">this</span>._connectionManager.getLocalInfo();
+    <span class="hljs-keyword">var</span> buffer = constructBuffer(self._view, localInfo.host,
+                    localInfo.port, host, port);
+
+    <span class="hljs-keyword">this</span>._connectionManager.send(host, port, REQUEST_HEADER, {view: buffer},
+        <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+
+        pullView(self._view, host, port, self._connectionManager);
+    });
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Selects a remote peer with which the local peer will exchange its view</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">selectPeer</span>(<span class="hljs-params">view</span>) </span>{
+    <span class="hljs-keyword">var</span> idx = <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">var</span> k = <span class="hljs-built_in">Math</span>.random();
+
+    <span class="hljs-keyword">if</span> (k &lt; P_SELECT_OLDEST) {
+        idx = view.getOldestItem();
+    }
+    <span class="hljs-keyword">else</span> {
+        idx = <span class="hljs-built_in">Math</span>.floor(<span class="hljs-built_in">Math</span>.random() * view.length());
+    }
+
+    <span class="hljs-keyword">return</span> view.get(idx);
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">constructBuffer</span>(<span class="hljs-params">view, localHost, localPort, peerHost, peerPort</span>) </span>{
+    winston.log(<span class="hljs-string">'debug'</span>, <span class="hljs-string">'view: '</span> + <span class="hljs-built_in">JSON</span>.stringify(view));
+    <span class="hljs-keyword">var</span> buffer = [{
+        host: localHost,
+        port: localPort,
+        age: <span class="hljs-number">0</span>
+    }];
+
+    <span class="hljs-keyword">var</span> items = getItemsToSend(view, peerHost, peerPort);
+    buffer = buffer.concat(items);
+
+    <span class="hljs-keyword">return</span> buffer;
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getItemsToSend</span>(<span class="hljs-params">view, host, port</span>) </span>{
+    <span class="hljs-keyword">var</span> items = [];
+    <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>;
+
+    <span class="hljs-keyword">var</span> newView = view.permute();
+    newView = newView.moveOldestItems(HEAL_FACTOR);
+
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> idx = <span class="hljs-number">0</span> ; idx &lt; newView.length() &amp;&amp; i &lt; (MAX_VIEW_SIZE / <span class="hljs-number">2</span>) -<span class="hljs-number">1</span> ; ++idx) {
+        <span class="hljs-keyword">if</span> (newView.get(idx).host !== host || newView.get(idx).port !== port) {
+            items.push(newView.get(idx));
+            ++i;
+        }
+    }
+
+    <span class="hljs-keyword">return</span> items;
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">pullView</span>(<span class="hljs-params">view, host, port, connectionManager</span>) </span>{
+    <span class="hljs-keyword">var</span> callback = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">data, host, port</span>) </span>{
+       connectionManager.removeListener(RESPONSE_HEADER, callback,
+            host, port);
+
+        <span class="hljs-keyword">var</span> remoteView = data.view;
+        <span class="hljs-keyword">var</span> newView = mergeViews(view, remoteView);
+        view = newView.increaseAge();
+    };
+
+    connectionManager.addListener(RESPONSE_HEADER, callback, host, port);
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>Returns a new view in which local and remote views are merged</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">mergeViews</span>(<span class="hljs-params">localView, remoteView</span>) </span>{
+    <span class="hljs-keyword">var</span> newView = localView.copy();
+    newView = newView.moveOldestItems(HEAL_FACTOR);
+    newView = newView.pushAll(remoteView);
+    newView = newView.removeDuplicates();
+    newView = newView.removeOldestItems(<span class="hljs-built_in">Math</span>.min(HEAL_FACTOR,
+                newView.length() - MAX_VIEW_SIZE));
+    newView = newView.removeHead(<span class="hljs-built_in">Math</span>.min(SWAP_FACTOR,
+                newView.length() - MAX_VIEW_SIZE));
+    newView = newView.removeAtRandom(newView.length() - MAX_VIEW_SIZE);
+
+    <span class="hljs-keyword">return</span> newView;
+}
+
+<span class="hljs-built_in">module</span>.exports = PeerSamplingService;</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>view.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page_wrapper">
+            <div id="jump_page">
+              
+                
+                <a class="source" href="connectionManager.html">
+                  connectionManager.js
+                </a>
+              
+                
+                <a class="source" href="peerSamplingService.html">
+                  peerSamplingService.js
+                </a>
+              
+                
+                <a class="source" href="server.html">
+                  server.js
+                </a>
+              
+                
+                <a class="source" href="utils.html">
+                  utils.js
+                </a>
+              
+                
+                <a class="source" href="view.html">
+                  view.js
+                </a>
+              
+            </div>
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>view.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-pi">'use strict'</span>;
+
+<span class="hljs-keyword">var</span> winston = <span class="hljs-built_in">require</span>(<span class="hljs-string">'winston'</span>);
+<span class="hljs-keyword">var</span> utils = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./utils'</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>An immutable list of peer descriptors.
+<code>descriptors</code> is an array of peer descriptors</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> View = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">descriptors</span>) </span>{
+    <span class="hljs-keyword">this</span>._descriptors = [];
+
+    <span class="hljs-keyword">if</span> (descriptors) {
+        <span class="hljs-keyword">this</span>._descriptors = <span class="hljs-keyword">this</span>._descriptors.concat(descriptors);
+    }
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Returns the number of items in the view</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>View.prototype.length = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._descriptors.length;
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Returns the descriptor at the given index of the view</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>View.prototype.get = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">index</span>) </span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._descriptors[index];
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Returns a shallow copy of the view</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>View.prototype.copy = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> View(<span class="hljs-keyword">this</span>._descriptors);
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>Returns a shallow copy of the view in which <code>descriptor</code>
+is inserted at the end</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>View.prototype.push = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">descriptor</span>) </span>{
+    <span class="hljs-keyword">var</span> array = descriptor ? [descriptor] : [];
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> View(<span class="hljs-keyword">this</span>._descriptors.concat(array));
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>Returns a shallow copy of the view in which the items of <code>descriptors</code>
+have been inserted at the end</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>View.prototype.pushAll = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">descriptors</span>) </span>{
+    descriptors = descriptors || [];
+   <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> View(<span class="hljs-keyword">this</span>._descriptors.concat(descriptors));
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>Returns a shallow copy of the view in in which
+<code>n</code> consecutive items (default: 1) have been removed starting from
+the given index (default: 0)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>View.prototype.remove = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">n, index</span>) </span>{
+    n = n || <span class="hljs-number">1</span>;
+    index = index || <span class="hljs-number">0</span>;
+
+    <span class="hljs-keyword">var</span> array = [].concat(<span class="hljs-keyword">this</span>._descriptors);
+    array.splice(index, n);
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> View(array);
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>Returns a shallow copy of the view in which items
+items have been permuted randomly</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>View.prototype.permute = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+     <span class="hljs-keyword">var</span> newView = <span class="hljs-keyword">this</span>.copy();
+     <span class="hljs-keyword">var</span> nbSwaps = <span class="hljs-built_in">Math</span>.pow(newView._descriptors.length, <span class="hljs-number">2</span>);
+     <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>;
+
+     <span class="hljs-keyword">while</span> (i &lt; nbSwaps) {
+            <span class="hljs-keyword">var</span> idx1 = <span class="hljs-built_in">Math</span>.floor(<span class="hljs-built_in">Math</span>.random() * newView._descriptors.length);
+            <span class="hljs-keyword">var</span> idx2 = <span class="hljs-built_in">Math</span>.floor(<span class="hljs-built_in">Math</span>.random() * newView._descriptors.length);
+            utils.swap(newView._descriptors, idx1, idx2);
+            ++i;
+        }
+
+    <span class="hljs-keyword">return</span> newView;
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>Returns a shallow copy of the view in which the age of all descriptors
+have been increased by one</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>View.prototype.increaseAge = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">var</span> array = <span class="hljs-keyword">this</span>._descriptors.map(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">desc</span>) </span>{
+        <span class="hljs-keyword">return</span> {host: desc.host, port: desc.port, age: desc.age + <span class="hljs-number">1</span>};
+    });
+
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> View(array);
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>Returns the oldest descriptor of the view</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>View.prototype.getOldestItem = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">var</span> maxAge = <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">var</span> maxIdx = -<span class="hljs-number">1</span>;
+
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> idx = <span class="hljs-number">0</span> ; idx &lt; <span class="hljs-keyword">this</span>._descriptors.length ; ++idx) {
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>._descriptors[idx].age &gt; maxAge) {
+            maxAge = <span class="hljs-keyword">this</span>._descriptors[idx].age;
+            maxIdx = idx;
+        }
+    }
+
+    <span class="hljs-keyword">return</span> maxIdx;
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Returns a shallow copy of the view in which the n oldest descriptors
+have been moved at the tail</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>View.prototype.moveOldestItems = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">n</span>) </span>{
+    n = n || <span class="hljs-number">0</span>;
+    n = <span class="hljs-built_in">Math</span>.min(n, <span class="hljs-keyword">this</span>.length());
+
+    <span class="hljs-keyword">var</span> newView = <span class="hljs-keyword">this</span>.copy();
+    <span class="hljs-keyword">var</span> buffer = [];
+
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span> ; i &lt; n ; ++i) {
+        <span class="hljs-keyword">var</span> idx = newView.getOldestItem();
+        buffer.splice(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, newView.get(idx));
+        newView = newView.remove(<span class="hljs-number">1</span>, idx);
+    }
+
+    <span class="hljs-keyword">return</span> newView.pushAll(buffer);
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>Returns a shallow copy of the view in which duplicates have been removed:
+only the freshest descriptor of each peer is kept</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>View.prototype.removeDuplicates = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">var</span> freshestItems = {};
+
+    <span class="hljs-keyword">this</span>._descriptors.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">desc</span>) </span>{
+        <span class="hljs-keyword">var</span> key = desc.host + desc.port;
+        <span class="hljs-keyword">var</span> minAge = freshestItems.hasOwnProperty(key) ? freshestItems[key] : -<span class="hljs-number">1</span>;
+
+        <span class="hljs-keyword">if</span> ((minAge === -<span class="hljs-number">1</span>) || (desc.age &lt; minAge)) {
+            freshestItems[key] = desc.age;
+        }
+    });
+
+    <span class="hljs-keyword">var</span> array = <span class="hljs-keyword">this</span>._descriptors.filter(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">desc</span>) </span>{
+        <span class="hljs-keyword">var</span> key = desc.host + desc.port;
+        <span class="hljs-keyword">return</span> (desc.age === freshestItems[key]) &amp;&amp; (<span class="hljs-keyword">delete</span> freshestItems[key]);
+    });
+
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> View(array);
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>Returns a shallow copy of the view in which the n oldest descriptors
+have been removed</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>View.prototype.removeOldestItems = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">n</span>) </span>{
+    n = n || <span class="hljs-number">0</span>;
+    n = <span class="hljs-built_in">Math</span>.min(n, <span class="hljs-keyword">this</span>.length());
+
+    <span class="hljs-keyword">var</span> newView = <span class="hljs-keyword">this</span>.copy();
+
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span> ; i &lt; n ; ++i) {
+        <span class="hljs-keyword">var</span> idxOldest = newView.getOldestItem();
+        newView = newView.remove(<span class="hljs-number">1</span>, idxOldest);
+    }
+
+    <span class="hljs-keyword">return</span> newView;
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>Returns a shallow copy of the view in which the n first descriptors
+have been removed</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>View.prototype.removeHead = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">n</span>) </span>{
+    <span class="hljs-keyword">var</span> newView = <span class="hljs-keyword">this</span>.copy();
+
+    <span class="hljs-keyword">if</span> (n &gt; <span class="hljs-number">0</span>) {
+        newView = newView.remove(n);
+    }
+
+    <span class="hljs-keyword">return</span> newView;
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>Returns a shallow copy of the view in which the n descriptors
+have been removed randomly</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>View.prototype.removeAtRandom = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">n</span>) </span>{
+    <span class="hljs-keyword">var</span> newView = <span class="hljs-keyword">this</span>.copy();
+
+    n = <span class="hljs-built_in">Math</span>.min(n, newView.length());
+
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span> ; i &lt; n ; ++i) {
+        <span class="hljs-keyword">var</span> idx = <span class="hljs-built_in">Math</span>.floor(<span class="hljs-built_in">Math</span>.random() * newView.length());
+        newView = newView.remove(<span class="hljs-number">1</span>, idx);
+    }
+
+    <span class="hljs-keyword">return</span> newView;
+};
+
+<span class="hljs-built_in">module</span>.exports = View;</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

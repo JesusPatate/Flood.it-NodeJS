@@ -25,6 +25,11 @@
                 </a>
               
                 
+                <a class="source" href="peerSamplingService.html">
+                  peerSamplingService.js
+                </a>
+              
+                
                 <a class="source" href="server.html">
                   server.js
                 </a>
@@ -32,6 +37,11 @@
                 
                 <a class="source" href="utils.html">
                   utils.js
+                </a>
+              
+                
+                <a class="source" href="view.html">
+                  view.js
                 </a>
               
             </div>
@@ -78,14 +88,14 @@ to ‘localhost’.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	checkAddress: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">str</span>) </span>{
-	    <span class="hljs-keyword">var</span> re = <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(<span class="hljs-string">'^(\\d|[1-9]\\d|1\\d\\d|2([0-4]\\d|5[0-5]))'</span> +
-	        <span class="hljs-string">'\\.(\\d|[1-9]\\d|1\\d\\d|2([0-4]\\d|5[0-5]))'</span> +
-	        <span class="hljs-string">'\\.(\\d|[1-9]\\d|1\\d\\d|2([0-4]\\d|5[0-5]))'</span> +
-	        <span class="hljs-string">'\\.(\\d|[1-9]\\d|1\\d\\d|2([0-4]\\d|5[0-5]))$'</span>);
+            <div class="content"><div class='highlight'><pre>    checkAddress: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">str</span>) </span>{
+        <span class="hljs-keyword">var</span> re = <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(<span class="hljs-string">'^(\\d|[1-9]\\d|1\\d\\d|2([0-4]\\d|5[0-5]))'</span> +
+            <span class="hljs-string">'\\.(\\d|[1-9]\\d|1\\d\\d|2([0-4]\\d|5[0-5]))'</span> +
+            <span class="hljs-string">'\\.(\\d|[1-9]\\d|1\\d\\d|2([0-4]\\d|5[0-5]))'</span> +
+            <span class="hljs-string">'\\.(\\d|[1-9]\\d|1\\d\\d|2([0-4]\\d|5[0-5]))$'</span>);
 
-	    <span class="hljs-keyword">return</span> (str.toLowerCase() === <span class="hljs-string">'localhost'</span>) || re.test(str);
-	},</pre></div></div>
+        <span class="hljs-keyword">return</span> (str.toLowerCase() === <span class="hljs-string">'localhost'</span>) || re.test(str);
+    },</pre></div></div>
             
         </li>
         
@@ -100,10 +110,51 @@ to ‘localhost’.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	checkPort: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">str</span>) </span>{
-		<span class="hljs-keyword">return</span> str.match(<span class="hljs-regexp">/\d*/</span>) &amp;&amp; (<span class="hljs-built_in">parseInt</span>(str) &gt; <span class="hljs-number">0</span>) &amp;&amp;
-			(<span class="hljs-built_in">parseInt</span>(str) &lt; MAX_PORT);
-	}
+            <div class="content"><div class='highlight'><pre>    checkPort: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">str</span>) </span>{
+        <span class="hljs-keyword">return</span> str.match(<span class="hljs-regexp">/\d*/</span>) &amp;&amp; (<span class="hljs-built_in">parseInt</span>(str) &gt; <span class="hljs-number">0</span>) &amp;&amp;
+            (<span class="hljs-built_in">parseInt</span>(str) &lt; MAX_PORT);
+    },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Parses data received from a stream. <code>data</code> is a Buffer instance
+containing the data to be parsed. <code>buffer</code> is another Buffer instance
+that holds  incomplete data which was received previously. <code>delimiter</code>
+is a character that signals the end of a message. <code>callback</code> is a function
+that is called each time a message is parsed successfully.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    consumeStream: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">data, buffer, delimiter, callback</span>) </span>{
+        <span class="hljs-keyword">var</span> buff;
+
+        <span class="hljs-keyword">if</span> (buffer) {
+            buff = Buffer.concat([buffer, data]);
+        } <span class="hljs-keyword">else</span> {
+            buff = data;
+        }
+
+        <span class="hljs-keyword">var</span> idx = buff.indexOf(delimiter);
+
+        <span class="hljs-keyword">while</span> (idx &gt; -<span class="hljs-number">1</span>) {
+            <span class="hljs-keyword">var</span> msgBytes = buff.slice(<span class="hljs-number">0</span>, idx);
+            buff = buff.slice(idx + <span class="hljs-number">1</span>);
+            idx = buff.indexOf(delimiter);
+            callback(msgBytes.toString());
+        }
+
+        <span class="hljs-keyword">return</span> buff;
+    },
+    swap: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">array, idx1, idx2</span>) </span>{
+        array[idx1] = [array[idx2],array[idx2]=array[idx1]][<span class="hljs-number">0</span>];
+    }
 };</pre></div></div>
             
         </li>
